@@ -1,0 +1,25 @@
+{
+  "name": "yapping-level",
+  "version": "1.0.0",
+  "description": "Analyzes historical and current level of discord chatter to calculate the current level of yapping going on.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Aldoraz/Yapping-Level.git"
+  },
+  "keywords": [
+    "discord.js"
+  ],
+  "author": "Aldoraz",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Aldoraz/Yapping-Level/issues"
+  },
+  "homepage": "https://github.com/Aldoraz/Yapping-Level#readme",
+  "dependencies": {
+    "discord.js": "^14.15.2"
+  }
+}
