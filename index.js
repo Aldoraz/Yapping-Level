@@ -2,7 +2,6 @@ const { Client, IntentsBitField, Events, Collection  } = require("discord.js");
 const path = require('path');
 const fs = require('fs');
 const { logInfo, logError, executeQuery } = require('./util');
-const { token } = require("./config.json");
 
 const botIntents = new IntentsBitField();
 botIntents.add(
@@ -67,4 +66,9 @@ client.on(Events.MessageCreate, async (message) => {
     }
 });
 
-client.login(token);
+if (!process.env.TOKEN) {
+    console.error("Missing TOKEN environment variable, unable to continue");
+    process.exit(1)
+}
+
+client.login(process.env.TOKEN);
