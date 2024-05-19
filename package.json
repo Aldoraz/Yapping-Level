@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/Aldoraz/Yapping-Level#readme",
   "dependencies": {
+    "cli-color": "^2.0.4",
     "discord.js": "^14.15.2",
     "dotenv": "^16.4.5",
     "pg": "^8.11.5"

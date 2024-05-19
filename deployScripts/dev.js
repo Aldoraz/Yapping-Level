@@ -1,6 +1,8 @@
 const { REST, Routes } = require('discord.js');
-const { clientId, devServerId, token } = require('../config.json');
 const fs = require('node:fs');
+const { clientId, devServerId, token } = require('../config.json');
+const { logInfo, logError } = require('./util');
+
 
 const commands = [];
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
@@ -13,15 +15,15 @@ for (const file of commandFiles) {
 
 (async () => {
     try {
-        console.log(`Started refreshing ${commands.length} application (/) commands.`);
+        logInfo(`Started refreshing ${commands.length} application (/) commands.`);
 
         const data = await rest.put(
 			Routes.applicationGuildCommands(clientId, devServerId),
 			{ body: commands },
 		);
 
-        console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+        logInfo(`Successfully reloaded ${data.length} application (/) commands.`);
     } catch (error) {
-        console.error(error);
+        logError(error);
     }
 })();

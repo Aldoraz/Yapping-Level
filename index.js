@@ -1,5 +1,6 @@
 const { Client, IntentsBitField, Events } = require("discord.js");
 const { Client: PgClient } = require('pg');
+const { logInfo, logWarn, logError, logDebug } = require('./util');
 const { token } = require("./config.json");
 require('dotenv').config();
 
@@ -11,9 +12,9 @@ const pgClient = new PgClient({
     port: process.env.DB_PORT,
 });
 
-  pgClient.connect()
-  .then(() => console.log(`[${new Date().toLocaleTimeString()}] Connected to PostgreSQL`)) // TODO add logger
-  .catch(err => console.error(`[${new Date().toLocaleTimeString()}] Connection error`, err.stack));
+pgClient.connect()
+    .then(() => logInfo("Connected to PostgreSQL."))
+    .catch(err => logError("Error connecting to PostgreSQL: ", err.stack));
 
 const botIntents = new IntentsBitField();
 botIntents.add(
@@ -23,7 +24,7 @@ botIntents.add(
 const client = new Client({ intents: [botIntents] });
 
 client.once(Events.ClientReady, async () => {
-    console.log(`[${new Date().toLocaleTimeString()}] ${client.user.tag} is up and running!`); // TODO use logger
+    logInfo(`${client.user.tag} successfully started.`); 
 });
 
 const yappingChannels = ["1241029518467141784"] // TODO: Make this configurable via command
@@ -36,9 +37,10 @@ client.on(Events.MessageCreate, async (message) => {
 
     try {
         await pgClient.query(query, values);
-        console.log(`[${new Date().toLocaleTimeString()}] Message logged to database`); // TODO add logger and make more informative
+        logInfo(`Message from ${message.author.tag} in ${message.guild.name}:${message.channel.name} logged.`) // TODO add logger and make more informative
     } catch (err) {
-        console.error(`[${new Date().toLocaleTimeString()}] Error inserting message`, err.stack);
-    }});
+        logError("Error inserting message: ", err.stack);
+    }
+});
 
 client.login(token);
