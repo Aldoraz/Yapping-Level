@@ -1,20 +1,8 @@
-const { Client, IntentsBitField, Events } = require("discord.js");
-const { Client: PgClient } = require('pg');
-const { logInfo, logWarn, logError, logDebug } = require('./util');
+const { Client, IntentsBitField, Events, Collection  } = require("discord.js");
+const path = require('path');
+const fs = require('fs');
+const { logInfo, logError, executeQuery } = require('./util');
 const { token } = require("./config.json");
-require('dotenv').config();
-
-const pgClient = new PgClient({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT,
-});
-
-pgClient.connect()
-    .then(() => logInfo("Connected to PostgreSQL."))
-    .catch(err => logError("Error connecting to PostgreSQL: ", err.stack));
 
 const botIntents = new IntentsBitField();
 botIntents.add(
@@ -24,7 +12,43 @@ botIntents.add(
 const client = new Client({ intents: [botIntents] });
 
 client.once(Events.ClientReady, async () => {
-    logInfo(`${client.user.tag} successfully started.`); 
+    logInfo(`${client.user.tag} successfully started.`);
+});
+
+client.commands = new Collection();
+const commandsPath = path.join(__dirname, 'commands');
+const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+for (const file of commandFiles) {
+    const filePath = path.join(commandsPath, file);
+    const command = require(filePath);
+    
+    if ('data' in command && 'execute' in command) {
+        client.commands.set(command.data.name, command);
+    } else {
+        logError(`The command at ${filePath} is missing a required "data" or "execute" property.`);
+    }
+}
+
+client.on(Events.InteractionCreate, async interaction => {
+	if (!interaction.isChatInputCommand()) return;
+
+	const command = interaction.client.commands.get(interaction.commandName);
+
+	if (!command) {
+		logError(`No command matching ${interaction.commandName} was found.`);
+		return;
+	}
+
+	try {
+		await command.execute(interaction);
+	} catch (error) {
+		logError(error);
+		if (interaction.replied || interaction.deferred) {
+			await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+		} else {
+			await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+		}
+	}
 });
 
 const yappingChannels = ["1241029518467141784"] // TODO: Make this configurable via command
@@ -36,8 +60,8 @@ client.on(Events.MessageCreate, async (message) => {
     const values = [message.author.id, message.guild.id, message.channel.id, new Date(message.createdTimestamp)];
 
     try {
-        await pgClient.query(query, values);
-        logInfo(`Message from ${message.author.tag} in ${message.guild.name}:${message.channel.name} logged.`) // TODO add logger and make more informative
+        await executeQuery(query, values);
+        logInfo(`Message from ${message.author.tag} in ${message.guild.name}:${message.channel.name} logged.`);
     } catch (err) {
         logError("Error inserting message: ", err.stack);
     }

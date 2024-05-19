@@ -1,11 +1,27 @@
 const clicolor = require('cli-color');
+const { Client: PgClient } = require('pg');
+require('dotenv').config();
 
-const loggingLevels = {
-    INFO: clicolor.blue('[INFO]'),
-    WARN: clicolor.yellow('[WARN]'),
-    ERROR: clicolor.red('[ERROR]'),
-    DEBUG: clicolor.green('[DEBUG]')
+const pgClient = new PgClient({
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT,
+});
+pgClient.connect()
+    .then(() => logInfo("Connected to PostgreSQL."))
+    .catch(err => logError("Error connecting to PostgreSQL: ", err.stack));
+
+const executeQuery = async (query, values = []) => {
+    try {
+        return result = await pgClient.query(query, values);
+    } catch (error) {
+        logError('Error executing query: ', error);
+        throw error;
+    }
 };
+
 
 const getFormattedDateTime = () => {
     const now = new Date();
@@ -18,15 +34,25 @@ const getFormattedDateTime = () => {
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 
-
+const loggingLevels = {
+    INFO: clicolor.blue('[INFO]'),
+    WARN: clicolor.yellow('[WARN]'),
+    ERROR: clicolor.red('[ERROR]'),
+    DEBUG: clicolor.green('[DEBUG]')
+};
 const log = (level, message) => {
     const logMessage = `${getFormattedDateTime()} ${level} ${message}`;
     console.log(logMessage);
 }
+const logInfo = (message) => log(loggingLevels.INFO, message);
+const logWarn = (message) => log(loggingLevels.WARN, message);
+const logError = (message) => log(loggingLevels.ERROR, message);
+const logDebug = (message) => log(loggingLevels.DEBUG, message);
 
 module.exports = {
-    logInfo: (message) => log(loggingLevels.INFO, message),
-    logWarn: (message) => log(loggingLevels.WARN, message),
-    logError: (message) => log(loggingLevels.ERROR, message),
-    logDebug: (message) => log(loggingLevels.DEBUG, message)
+    logInfo,
+    logWarn,
+    logError,
+    logDebug,
+    executeQuery,
 };
