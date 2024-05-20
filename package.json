@@ -4,7 +4,8 @@
   "description": "Analyzes historical and current level of discord chatter to calculate the current level of yapping going on.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "dockerless": "dotenvx run -- node index.js"
   },
   "repository": {
     "type": "git",
@@ -22,7 +23,6 @@
   "dependencies": {
     "cli-color": "^2.0.4",
     "discord.js": "^14.15.2",
-    "dotenv": "^16.4.5",
     "pg": "^8.11.5"
   }
 }

@@ -1,14 +1,14 @@
 const clicolor = require('cli-color');
 const { Client: PgClient } = require('pg');
-require('dotenv').config();
 
 const pgClient = new PgClient({
-    user: process.env.DB_USER,
     host: process.env.DB_HOST,
     database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
 });
+
 pgClient.connect()
     .then(() => logInfo("Connected to PostgreSQL."))
     .catch(err => logError("Error connecting to PostgreSQL: ", err.stack));
