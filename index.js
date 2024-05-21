@@ -50,13 +50,13 @@ client.on(Events.InteractionCreate, async interaction => {
 	}
 });
 
-const yappingChannels = ["1241029518467141784"] // TODO: Make this configurable via command
+// const yappingChannels = ["1241029518467141784"] // TODO: Make this configurable via command
 client.on(Events.MessageCreate, async (message) => {
     if (message.author.bot) return;
-    if (!yappingChannels.includes(message.channel.id)) return;
+    // if (!yappingChannels.includes(message.channel.id)) return;
 
-    const query = 'INSERT INTO messages(userId, serverId, channelId, timestamp) VALUES($1, $2, $3, $4)';
-    const values = [message.author.id, message.guild.id, message.channel.id, new Date(message.createdTimestamp)];
+    const query = 'INSERT INTO messages(userId, serverId, channelId, createdAt) VALUES($1, $2, $3, $4)';
+    const values = [parseInt(message.author.id), parseInt(message.guild.id), parseInt(message.channel.id), new Date(message.createdTimestamp)];
 
     try {
         await executeQuery(query, values);
@@ -66,9 +66,9 @@ client.on(Events.MessageCreate, async (message) => {
     }
 });
 
-if (!process.env.TOKEN) {
+if (!process.env.BOT_TOKEN) {
     console.error("Missing TOKEN environment variable, unable to continue");
     process.exit(1)
 }
 
-client.login(process.env.TOKEN);
+client.login(process.env.BOT_TOKEN);

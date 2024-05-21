@@ -1,5 +1,4 @@
 const { REST, Routes } = require('discord.js');
-const { clientId, token } = require('../config.json');
 const { logInfo, logError } = require('../util');
 
 const commandId = process.argv[2];
@@ -8,8 +7,8 @@ if (!commandId) {
     process.exit(1);
 }
 
-const rest = new REST({ version: '10' }).setToken(token);
+const rest = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN);
 
-rest.delete(Routes.applicationCommand(clientId, commandId))
+rest.delete(Routes.applicationCommand(process.env.BOT_ID, commandId))
     .then(() => logInfo('Successfully deleted application (/) command.'))
     .catch((error) => logError(error));
