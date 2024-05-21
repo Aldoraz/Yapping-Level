@@ -56,18 +56,19 @@ client.on(Events.InteractionCreate, async interaction => {
 client.on(Events.MessageCreate, async (message) => {
     if (message.author.bot) return;
     // if (!yappingChannels.includes(message.channel.id)) return;
-    const attachmentAmount = message.attachments.size + message.embeds.length;
+
+    let attachmentAmount = message?.attachments?.size + message?.embeds?.length;
+    if (attachmentAmount === 0) attachmentAmount += (message.content.match(new RegExp("https://media.discordapp.net/attachments/", "g")) || []).length;
+    
     const query = 'INSERT INTO messages(userId, serverId, channelId, createdAt, attachment, attachmentamount) VALUES($1, $2, $3, $4, $5, $6)';
     const values = [message.author.id, message.guild.id, message.channel.id, new Date(message.createdTimestamp), attachmentAmount > 0, attachmentAmount];
 
     try {
-        const result = await executeQuery(query, values);
+        await executeQuery(query, values);
         logInfo(`Message from ${message.author.tag} in ${message.guild.name}/${message.channel.name} with ${attachmentAmount} attachment(s) logged.`);
     } catch (error) {
         logError('Error inserting message: ', error.stack);
     }
-
-
 });
 
 if (!process.env.BOT_TOKEN) {

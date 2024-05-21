@@ -1,5 +1,6 @@
 const clicolor = require('cli-color');
 const { Client: PgClient } = require('pg');
+const fs = require('fs');
 
 const pgClient = new PgClient({
     host: process.env.DB_HOST,
@@ -22,6 +23,38 @@ const executeQuery = async (query, values = []) => {
     }
 };
 
+const loggingLevels = {
+    INFO: clicolor.blue('[INFO]'),
+    WARN: clicolor.yellow('[WARN]'),
+    ERROR: clicolor.red('[ERROR]'),
+    DEBUG: clicolor.green('[DEBUG]')
+};
+const log = (level, message, obj) => {
+    let logMessage = `${getFormattedDateTime()} ${level} ${message}`;
+
+    console.log(logMessage);
+    if (obj) console.log(obj);
+
+    logMessage = stripAnsi(logMessage);
+    fs.appendFile('yapper.log', logMessage + '\n', (err) => {
+        if (err) {
+            logError('Error writing to log file:', err);
+        }
+    });
+
+    if (obj) {
+        fs.appendFile('yapper.log', JSON.stringify(obj, null, 2) + '\n', (err) => {
+            if (err) {
+                logError('Error writing object to log file:', err);
+            }
+        });
+    }
+}
+
+const logInfo = (message, obj) => log(loggingLevels.INFO, message, obj);
+const logWarn = (message, obj) => log(loggingLevels.WARN, message, obj);
+const logError = (message, obj) => log(loggingLevels.ERROR, message, obj);
+const logDebug = (message, obj) => log(loggingLevels.DEBUG, message, obj);
 
 const getFormattedDateTime = () => {
     const now = new Date();
@@ -34,21 +67,9 @@ const getFormattedDateTime = () => {
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 
-const loggingLevels = {
-    INFO: clicolor.blue('[INFO]'),
-    WARN: clicolor.yellow('[WARN]'),
-    ERROR: clicolor.red('[ERROR]'),
-    DEBUG: clicolor.green('[DEBUG]')
+function stripAnsi(str) {
+    return str.replace(/\u001b\[[0-9;]*m/g, '');
 };
-const log = (level, message, obj) => {
-    console.log(`${getFormattedDateTime()} ${level} ${message}`);
-    if (obj) console.log(obj);
-}
-
-const logInfo = (message, obj) => log(loggingLevels.INFO, message, obj);
-const logWarn = (message, obj) => log(loggingLevels.WARN, message, obj);
-const logError = (message, obj) => log(loggingLevels.ERROR, message, obj);
-const logDebug = (message, obj) => log(loggingLevels.DEBUG, message, obj);
 
 module.exports = {
     logInfo,
