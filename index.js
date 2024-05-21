@@ -3,10 +3,12 @@ const path = require('path');
 const fs = require('fs');
 const { logInfo, logError, executeQuery } = require('./util');
 
+
 const botIntents = new IntentsBitField();
 botIntents.add(
     IntentsBitField.Flags.Guilds,
     IntentsBitField.Flags.GuildMessages,
+    IntentsBitField.Flags.MessageContent,
 );
 const client = new Client({ intents: [botIntents] });
 
@@ -54,20 +56,22 @@ client.on(Events.InteractionCreate, async interaction => {
 client.on(Events.MessageCreate, async (message) => {
     if (message.author.bot) return;
     // if (!yappingChannels.includes(message.channel.id)) return;
-
-    const query = 'INSERT INTO messages(userId, serverId, channelId, createdAt) VALUES($1, $2, $3, $4)';
-    const values = [parseInt(message.author.id), parseInt(message.guild.id), parseInt(message.channel.id), new Date(message.createdTimestamp)];
+    const attachmentAmount = message.attachments.size + message.embeds.length;
+    const query = 'INSERT INTO messages(userId, serverId, channelId, createdAt, attachment, attachmentamount) VALUES($1, $2, $3, $4, $5, $6)';
+    const values = [message.author.id, message.guild.id, message.channel.id, new Date(message.createdTimestamp), attachmentAmount > 0, attachmentAmount];
 
     try {
-        await executeQuery(query, values);
-        logInfo(`Message from ${message.author.tag} in ${message.guild.name}:${message.channel.name} logged.`);
-    } catch (err) {
-        logError("Error inserting message: ", err.stack);
+        const result = await executeQuery(query, values);
+        logInfo(`Message from ${message.author.tag} in ${message.guild.name}/${message.channel.name} with ${attachmentAmount} attachment(s) logged.`);
+    } catch (error) {
+        logError('Error inserting message: ', error.stack);
     }
+
+
 });
 
 if (!process.env.BOT_TOKEN) {
-    console.error("Missing TOKEN environment variable, unable to continue");
+    console.error("Missing BOT_TOKEN environment variable, unable to continue");
     process.exit(1)
 }
 

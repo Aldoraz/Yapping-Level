@@ -17,7 +17,7 @@ const executeQuery = async (query, values = []) => {
     try {
         return result = await pgClient.query(query, values);
     } catch (error) {
-        logError('Error executing query: ', error);
+        logError('Error executing query: ', error.message);
         throw error;
     }
 };
@@ -40,14 +40,15 @@ const loggingLevels = {
     ERROR: clicolor.red('[ERROR]'),
     DEBUG: clicolor.green('[DEBUG]')
 };
-const log = (level, message) => {
-    const logMessage = `${getFormattedDateTime()} ${level} ${message}`;
-    console.log(logMessage);
+const log = (level, message, obj) => {
+    console.log(`${getFormattedDateTime()} ${level} ${message}`);
+    if (obj) console.log(obj);
 }
-const logInfo = (message) => log(loggingLevels.INFO, message);
-const logWarn = (message) => log(loggingLevels.WARN, message);
-const logError = (message) => log(loggingLevels.ERROR, message);
-const logDebug = (message) => log(loggingLevels.DEBUG, message);
+
+const logInfo = (message, obj) => log(loggingLevels.INFO, message, obj);
+const logWarn = (message, obj) => log(loggingLevels.WARN, message, obj);
+const logError = (message, obj) => log(loggingLevels.ERROR, message, obj);
+const logDebug = (message, obj) => log(loggingLevels.DEBUG, message, obj);
 
 module.exports = {
     logInfo,
