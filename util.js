@@ -11,8 +11,31 @@ const pgClient = new PgClient({
 });
 
 pgClient.connect()
-    .then(() => logInfo("Connected to PostgreSQL."))
+    .then(() => {
+        logInfo("Connected to PostgreSQL.");
+        createTableIfNotExists();
+    })
     .catch(err => logError("Error connecting to PostgreSQL: ", err.stack));
+
+const createTableIfNotExists = async () => {
+    const createTableQuery = `
+    CREATE TABLE IF NOT EXISTS messages (
+        user_id VARCHAR NOT NULL,
+        server_id VARCHAR NOT NULL,
+        channel_id VARCHAR NOT NULL,
+        created_at TIMESTAMP NOT NULL,
+        attachment BOOLEAN NOT NULL,
+        attachment_amount INT NOT NULL,
+        PRIMARY KEY (user_id, server_id, channel_id, created_at)
+    )
+    `;
+    try {
+        await pgClient.query(createTableQuery);
+        logInfo("Table created successfully or already exists.");
+    } catch (error) {
+        logError("Error creating table: ", error.message);
+    }
+};
 
 const executeQuery = async (query, values = []) => {
     try {

@@ -60,7 +60,7 @@ client.on(Events.MessageCreate, async (message) => {
     let attachmentAmount = message?.attachments?.size + message?.embeds?.length;
     if (attachmentAmount === 0) attachmentAmount += (message.content.match(new RegExp("https://media.discordapp.net/attachments/", "g")) || []).length;
     
-    const query = 'INSERT INTO messages(userId, serverId, channelId, createdAt, attachment, attachmentamount) VALUES($1, $2, $3, $4, $5, $6)';
+    const query = 'INSERT INTO messages(user_id, server_id, channel_id, created_at, attachment, attachment_amount) VALUES($1, $2, $3, $4, $5, $6)';
     const values = [message.author.id, message.guild.id, message.channel.id, new Date(message.createdTimestamp), attachmentAmount > 0, attachmentAmount];
 
     try {
