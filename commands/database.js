@@ -29,8 +29,22 @@ module.exports = {
 };
 
 async function runCommand(interaction) {
+    const nonoWords = [
+        'delete', 'drop', 'truncate', 'alter', 'update', 'insert', 
+        'exec', 'execute', 'grant', 'revoke', 'create', 'use', 
+        'begin', 'commit', 'rollback'
+    ];
     const query = interaction.options.getString('query');
     try {
+        if (interaction.member.id !=='149565760950239232') {
+            for (const word of nonoWords) {
+                if (query.toLowerCase().includes(word)) {
+                    await interaction.reply('You are not authorized to run this command.');
+                    return;
+                }
+            }
+        }
+
         result = await executeQuery(query);
         let resultString = 'Query Result:\n';
         result.rows.forEach(row => {
