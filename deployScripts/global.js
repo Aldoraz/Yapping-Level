@@ -25,4 +25,5 @@ for (const file of commandFiles) {
     } catch (error) {
         logError(error);
     }
+    process.exit();
 })();

@@ -12,3 +12,4 @@ const rest = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN);
 rest.delete(Routes.applicationCommand(process.env.BOT_ID, commandId))
     .then(() => logInfo('Successfully deleted application (/) command.'))
     .catch((error) => logError(error));
+process.exit();

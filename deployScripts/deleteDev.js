@@ -12,3 +12,4 @@ const rest = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN);
 rest.delete(Routes.applicationGuildCommand(process.env.BOT_ID, process.env.BOT_SERVER, commandId))
     .then(() => logInfo('Successfully deleted guild (/) command.'))
     .catch(error => logError(error));
+process.exit();

@@ -1,6 +1,6 @@
 const { logInfo, logError, logDebug, executeQuery } = require('../util');
 const { SlashCommandBuilder } = require('discord.js');
-
+const fs = require('fs');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('database')
@@ -36,9 +36,16 @@ async function runCommand(interaction) {
         result.rows.forEach(row => {
             resultString += Object.values(row).join(', ') + '\n';
         });
-        await interaction.reply(resultString);
+        
+        if (resultString.length > 2000) {
+            fs.writeFileSync('result.txt', resultString);
+            await interaction.reply({ files: ['result.txt'] });
+            fs.unlinkSync('result.txt');
+        } else {
+            await interaction.reply(resultString);
+        }
     } catch (err) {
         logError("Error executing command: ", err.stack);
-        await interaction.reply('Error executing command.');
+        await interaction.reply('Error executing command: ' + err.message);
     }
 }

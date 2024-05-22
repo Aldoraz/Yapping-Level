@@ -5,7 +5,11 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dockerless": "dotenvx run -- node index.js"
+    "dockerless": "dotenvx run -- node index.js",
+    "deploy:dev": "dotenvx run -- node deployscripts/dev.js",
+    "deploy:global" : "dotenvx run -- node deployscripts/global.js",
+    "delete:dev": "dotenvx run -- node deployscripts/deleteDev.js",
+    "delete:global": "dotenvx run -- node deployscripts/deleteGlobal.js"
   },
   "repository": {
     "type": "git",
