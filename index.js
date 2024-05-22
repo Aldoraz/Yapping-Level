@@ -52,10 +52,8 @@ client.on(Events.InteractionCreate, async interaction => {
 	}
 });
 
-// const yappingChannels = ["1241029518467141784"] // TODO: Make this configurable via command
 client.on(Events.MessageCreate, async (message) => {
     if (message.author.bot) return;
-    // if (!yappingChannels.includes(message.channel.id)) return;
 
     let attachmentAmount = message?.attachments?.size + message?.embeds?.length;
     if (attachmentAmount === 0) attachmentAmount += (message.content.match(new RegExp("https://media.discordapp.net/attachments/", "g")) || []).length;
