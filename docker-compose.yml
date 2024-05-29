@@ -4,7 +4,8 @@ services:
     container_name: yappinglevel
     restart: unless-stopped
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     working_dir: /usr/src/app
     command: ["yarn", "start"]
     env_file: ./.env
@@ -22,10 +23,16 @@ services:
     image: postgres
     container_name: yappingleveldb
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $DB_USER -d botdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     env_file: ./.env
     environment:
       POSTGRES_DB: botdb
       POSTGRES_USER: $DB_USER
       POSTGRES_PASSWORD: $DB_PASSWORD
     volumes:
-      - ./db:/var/lib/postgres
+      - ./db:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
