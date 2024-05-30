@@ -4,15 +4,39 @@ const fs = require('fs');
 
 const pgClient = new PgClient({
     host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
     port: process.env.DB_PORT,
+    database: process.env.DB_NAME,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
 });
 
 pgClient.connect()
-    .then(() => logInfo("Connected to PostgreSQL."))
+    .then(() => {
+        initTable();
+        logInfo('Connected to PostgreSQL');
+    })
     .catch(err => logError("Error connecting to PostgreSQL: ", err.stack));
+
+const initTable = async () => {
+    try {
+        const createTableQuery = 
+        `
+        CREATE TABLE IF NOT EXISTS messages (
+            user_id VARCHAR NOT NULL,
+            server_id VARCHAR NOT NULL,
+            channel_id VARCHAR NOT NULL,
+            created_at TIMESTAMP NOT NULL,
+            attachment BOOLEAN NOT NULL,
+            attachment_amount INT NOT NULL,
+            PRIMARY KEY (user_id, server_id, channel_id, created_at)
+        )
+        `;
+        await pgClient.query(createTableQuery);
+        logInfo("Table created successfully or already exists.");
+    } catch (error) {
+        logError("Error creating table: ", error.message);
+    }
+};
 
 const executeQuery = async (query, values = []) => {
     try {
@@ -22,6 +46,8 @@ const executeQuery = async (query, values = []) => {
         throw error;
     }
 };
+
+
 
 const loggingLevels = {
     INFO: clicolor.blue('[INFO]'),

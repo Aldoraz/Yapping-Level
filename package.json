@@ -1,11 +1,11 @@
 {
   "name": "yapping-level",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Analyzes historical and current level of discord chatter to calculate the current level of yapping going on.",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dockerless": "dotenvx run -- node index.js",
+    "start": "dotenvx run -- node yapping-level.js",
+    "server": "dotenvx run -- pm2 start yapping-level.js",
     "deploy:dev": "dotenvx run -- node deployscripts/dev.js",
     "deploy:global" : "dotenvx run -- node deployscripts/global.js",
     "delete:dev": "dotenvx run -- node deployscripts/deleteDev.js",
